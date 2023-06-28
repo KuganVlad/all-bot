@@ -77,7 +77,9 @@ def create_db():
             teacher_id INTEGER PRIMARY KEY AUTOINCREMENT,
             teacher_name TEXT,
             teacher_major TEXT,
+            teacher_description TEXT,
             teacher_city TEXT,
+            tacher_contact TEXT,
             teacher_status INTEGER,
             is_manager INTEGER
         )
@@ -95,6 +97,16 @@ def create_db():
         )
     ''')
 
+    # Создаем таблицу city
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS city (
+            city_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name_city TEXT,
+            filial_status_kids INTEGER,
+            filial_status_scouting INTEGER,
+            filial_status_age INTEGER
+        )
+    ''')
     # Сохраняем изменения в базе данных
     conn.commit()
 
@@ -120,3 +132,23 @@ def is_user_allowed(user_id):
     user = cursor.fetchone()
     conn.close()
     return bool(user)
+
+# получение информации о городе пользователя
+def get_user_city(user_id):
+    conn = sqlite3.connect("bot_database.db")
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT city FROM users WHERE tg_user_id = ?', (user_id,))
+    user_city = cursor.fetchone()
+    conn.close()
+    return user_city
+
+# проверка наличия города в котором есть филиал
+def get_filial_at_city(city_name):
+    conn = sqlite3.connect("bot_database.db")
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT name_city FROM city WHERE name_city = ?', (city_name,))
+    city_exist = cursor.fetchone()
+    conn.close()
+    return bool(city_exist)

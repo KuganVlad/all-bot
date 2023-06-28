@@ -8,6 +8,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import sqlite3
 import db_function
+import bot_function
+from geo_data import find_nearest_city
 
 
 config = configparser.ConfigParser()
@@ -156,15 +158,34 @@ async def handle_button_click(message: types.Message):
     user_id = message.from_user.id
     if db_function.is_user_allowed(user_id):
         if message.text == "О модельной школе":
-            pass
+            data = bot_function.get_reference_school_information()
+            if data:
+                await message.answer(data[0])
+            else:
+                await message.answer("Запрашиваемая информация отсутствует")
+
         elif message.text == "Направления обучения":
-            pass
+            data = bot_function.get_information_on_destinations()
+            if data:
+                await message.answer(data[0])
+            else:
+                await message.answer("Запрашиваемая информация отсутствует")
         elif message.text == "Учебные дисциплины":
-            pass
-        elif message.text == "Направления обучения":
-            pass
+            data = bot_function.get_academic_disciplines()
+            if data:
+                await message.answer(data[0])
+            else:
+                await message.answer("Запрашиваемая информация отсутствует")
         elif message.text == "Преподаватели":
-            pass
+            user_city = db_function.get_user_city(user_id)
+            if db_function.get_filial_at_city(user_city[0]):
+                pass
+            else:
+                nearest_city = find_nearest_city(user_city[0])
+                await message.answer(f"К сожалению мы ещё не открыли филиал в вашем городе,\n"
+                                     f"но мы будем очень рады вас видеть в нашем филиале\n в г. {nearest_city}e\n"
+                                     f"где вас встретит наш дружный коллектив:\n")
+
         elif message.text == "События":
             pass
         elif message.text == "Запись на кастинг":
